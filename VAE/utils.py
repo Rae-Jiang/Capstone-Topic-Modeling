@@ -16,6 +16,10 @@ from nltk.corpus import stopwords
 words = set(nltk.corpus.words.words())
 stops = set(stopwords.words('english'))
 
+from spacy.lang.en import English
+# Load English tokenizer, tagger, parser, NER and word vectors
+nlp = English()
+
 def process_text(texts, bigram, with_bigram=True,filter_stopword_spacy = False, remove_non_eng = False,
                     with_lemmatize = False, with_stem = False):
     """
