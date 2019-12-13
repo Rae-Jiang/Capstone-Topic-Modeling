@@ -6,12 +6,16 @@ import sys, os
 from collections import OrderedDict,Counter
 
 import gensim
-
+import nltk
+nltk.download('words')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger')
 from nltk.stem import WordNetLemmatizer,PorterStemmer
-lemmatizer = WordNetLemmatizer() 
+from nltk import pos_tag
+wnl = WordNetLemmatizer() 
 porter = PorterStemmer()
 
-import nltk
 from nltk.corpus import stopwords
 words = set(nltk.corpus.words.words())
 stops = set(stopwords.words('english'))
@@ -44,10 +48,12 @@ def process_text(texts, bigram, with_bigram=True,filter_stopword_spacy = False, 
         texts = [[word for word in line if word.lower() in words] for line in texts]
     # Bigram collocation detection (frequently co-occuring tokens) using gensim's Phrases. can even try trigram collocation detection.
     if with_bigram:
+        bigram = gensim.models.Phrases(texts)
         texts = [bigram[line] for line in texts]
     #lemmatization (using gensim's lemmatize) to only keep the nouns. Lemmatization is generally better than stemming in the case of topic modeling since the words after lemmatization still remain understable. However, generally stemming might be preferred if the data is being fed into a vectorizer and isn't intended to be viewed. 
     if with_lemmatize:
-        texts = [[lemmatizer.lemmatize(word) for word in line] for line in texts] 
+        lemmatization = ['a','n','v']
+        texts = [[wnl.lemmatize(i,j[0].lower()) if j[0].lower() in lemmatization else wnl.lemmatize(i) for i,j in pos_tag(line)] for line in texts]
     if with_stem:
         texts = [[porter.stem(word) for word in line] for line in texts] 
     if filter_stopword_spacy:
